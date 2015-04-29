@@ -1,0 +1,39 @@
+配置surfbox工具箱（surfacelet变换工具箱）
+本人机器环境 VS2010+MATLAB2009A
+一.下载surfbox  http://cn.mathworks.com/matlabcentral/fileexchange/14485-surfacelet-toolbox
+二.添加到工具箱  http://brent0541.blog.163.com/blog/static/18509325420119224331765/
+三.按照surfbox中的  mexcompile.m(在surfbox根目录下）的步骤编译mex文件（使用了C++程序,需要把cpp编译为mex)
+ 这一步可能会碰到的问题和具体步骤：
+   3.1 按要求使用VC的cl.exe 编译fftw中的lib文件（实现中用到了fftw,具体见mexcompile.m）   http://blog.csdn.net/moyumoyu/article/details/7950528
+   3.2 运行cl.exe报错缺少mspdb100.dll等文件。可以在VC的commont7/IDE目录下找到，知道后复制到bin中（cl.exe所在目录）
+   3.3 把编译好的lib放到vc的lib目录中
+   3.4 配置好mexcompile.m剩下的参数。运行。（运行时当前目录设置在surfbox/MATLAB目录下）
+   3.5 如果报char16_t重复定义的问题，在mexSurfaceletDec.cpp(SurfBox\mex目录下)，
+   mexSurfaceletRec.cpp(SurfBox\mex目录下)，SurfaceBoxSystem.cpp(SurfBox\MATLAB目录下)
+   三个源文件里把【#include "mex.h"】替换为
+   【 #include <yvals.h>
+	#if (_MSC_VER >= 1600)
+	#define __STDC_UTF_16__
+	#endif
+	#include "mex.h"】
+	3.6 注意如果之间没有混编过，使用mex -setup命令配置编译器
+    3.7 编译如果没有其他错误但报缺少..\SurfBox\MATLAB\mexSurfaceletDec.mexw64.manifest等三个配置文件缺失。就在相应的位置
+	自己建立三个文件。三个文件内容如下【
+	<?xmlversion="2.0"encoding="UTF-8"standalone="yes"?>
+	<assemblyxmlns="urn:schemas-microsoft-com:asm.v1"manifestversion="1.0">
+	<trustinfoxmlns="urn:schemas-microsoft-com:asm.v3">
+	<security>
+	<requestedprivileges>
+	<requestedexecutionleveluiaccess="false"level="asInvoker"></requestedexecutionlevel>
+	</requestedprivileges>
+	</security>
+	</trustinfo>
+	<dependency>
+	<dependentassembly>
+	<assemblyidentityname="Microsoft.VC90.CRT"publickeytoken="1fc8b3b9a1e18e3b"processorarchitecture="x32" version="9.0.21022.8"type="win32"></assemblyidentity>
+	</dependentassembly>
+	</dependency>
+	</assembly>
+	】
+四.编译没错的话（运行mexcompile.m文件）	查看SurfBox\Matlab是否有mexSurfaceletRec.mexw（64）等三个文件。如果有说明编译完成。
+如果此时运行SurfBox\demo中的例子还报undefind function 参照二.中的更新matlab工具箱cache。
